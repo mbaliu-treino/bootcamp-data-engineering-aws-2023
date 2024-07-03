@@ -1,6 +1,6 @@
 import psycopg2
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 import random
 from faker import Faker  # serve para criar dados fictícios
@@ -142,6 +142,33 @@ def insert_random_data(cursor, conn, number_of_customers):
     except psycopg2.Error as e:
         print(f'Falaha ao tentar gerar dados de produtos: {e}')
 
-cursor = None
+    # Fecha a conexão com o Banco de Dados
+    cursor.close()
+    conn.close()
+
+# ==== Código básico de instanciação ====
+
+# Instância do Faker com dialeto em português
+fake = Faker(locale='pt_BR')
+
+# Carregas as variáveis do ambiente do arquivo .env - torna o código multiplataforma
+load_dotenv()
+
+# Conectar o Banco de Dados PostgreSQL
+conn = psycopg2.connect(
+    host = os.environ.get('DB_HOST'),
+    database = os.envrion.get('DB_NAME'),
+    user = os.environ.get('DB_USER'),
+    password = os.environ.get('DB_PASSWORD'),
+    port = os.environ.get('DB_PORT')
+)
+
+# Cria um cursor para executar as instruções
+cursor = conn.cursor()
+
+# Número de clientes
+number_of_customers = int( os.environ.get('NUM_CUSTOMERS') )
+
+# Executa as tarefas de manipulação do Banco de Dados
 tables_scripts = get_create_tables_scripts()
 create_tables(cursor, tables_scripts)
