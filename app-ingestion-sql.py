@@ -146,29 +146,43 @@ def insert_random_data(cursor, conn, number_of_customers):
     cursor.close()
     conn.close()
 
+
 # ==== Código básico de instanciação ====
+def main():
+    # Instância do Faker com dialeto em português
+    fake = Faker(locale='pt_BR')
 
-# Instância do Faker com dialeto em português
-fake = Faker(locale='pt_BR')
+    # Carregas as variáveis do ambiente do arquivo .env - torna o código multiplataforma
+    load_dotenv()
 
-# Carregas as variáveis do ambiente do arquivo .env - torna o código multiplataforma
-load_dotenv()
+    # Conectar o Banco de Dados PostgreSQL
+    conn = psycopg2.connect(
+        host = os.environ.get('DB_HOST'),
+        database = os.envrion.get('DB_NAME'),
+        user = os.environ.get('DB_USER'),
+        password = os.environ.get('DB_PASSWORD'),
+        port = os.environ.get('DB_PORT')
+    )
 
-# Conectar o Banco de Dados PostgreSQL
-conn = psycopg2.connect(
-    host = os.environ.get('DB_HOST'),
-    database = os.envrion.get('DB_NAME'),
-    user = os.environ.get('DB_USER'),
-    password = os.environ.get('DB_PASSWORD'),
-    port = os.environ.get('DB_PORT')
-)
+    # Cria um cursor para executar as instruções
+    cursor = conn.cursor()
 
-# Cria um cursor para executar as instruções
-cursor = conn.cursor()
+    # Número de clientes
+    number_of_customers = int( os.environ.get('NUM_CUSTOMERS') )
 
-# Número de clientes
-number_of_customers = int( os.environ.get('NUM_CUSTOMERS') )
+    # Executa as tarefas de manipulação do Banco de Dados
+    tables_scripts = get_create_tables_scripts()
+    create_tables(cursor, tables_scripts)
+    insert_random_data(cursor, conn, number_of_customers)
 
-# Executa as tarefas de manipulação do Banco de Dados
-tables_scripts = get_create_tables_scripts()
-create_tables(cursor, tables_scripts)
+
+# EXECUTION
+if __name__ == '__main__':
+    # Executa a função principal
+    print('=' * 50)
+    print('Iniciando o script...')
+
+    main()
+    
+    print('=' * 50)
+    print('Fim do script!\n')
